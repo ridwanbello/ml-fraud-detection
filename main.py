@@ -1,6 +1,6 @@
 # Import fastapi library
 from fastapi import Body, FastAPI, HTTPException
-
+from fastapi.middleware.cors import CORSMiddleware
 
 # Import my modules
 from models import Item
@@ -13,6 +13,21 @@ app = FastAPI(
     version="0.1.0",
     debug=True)
 
+# CORS Origin Middleware
+origins = [
+    "http://localhost:5000",
+]
+
+app.add_middleware(
+    CORSMiddleware,
+    allow_origins=origins,
+    allow_credentials=True,
+    allow_methods=["*"],
+    allow_headers=["*"],
+)
+
+
+# Routes
 @app.get("/")
 def root():
     return {"Hello": "World"}
