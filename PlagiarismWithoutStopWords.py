@@ -64,7 +64,7 @@ class PlagiarismWithoutStopWords:
     # Prepare content by removing stopwords, steemming and tokenizing
     def prepare_content(self, content):
         # STOP WORDS
-        stop_words = set(stopwords.words('english'))
+        #stop_words = set(stopwords.words('english'))
         # TOKENIZE
         word_tokens = word_tokenize(content)
 

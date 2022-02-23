@@ -1,5 +1,5 @@
 # Import fastapi library
-from fastapi import FastAPI
+from fastapi import FastAPI, HTTPException
 
 
 # Import my modules
@@ -20,6 +20,8 @@ def prediction():
 
 @app.post("/api/v1/predict1")
 def predict(item: Item):
+    if len(item.userText.split()) < 4 or len(item.databaseText.split()) < 4 :
+        raise HTTPException(status_code=404, detail="Text should not be less than 4 words")
     result = PlagiarismChecker(item.userText,item.databaseText)
     return {"percentage": result.get_rate()}
 
