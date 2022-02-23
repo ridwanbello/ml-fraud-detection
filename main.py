@@ -7,7 +7,11 @@ from models import Item
 from PlagiarismChecker import PlagiarismChecker
 from PlagiarismWithoutStopWords import PlagiarismWithoutStopWords
 
-app = FastAPI()
+app = FastAPI(
+    title='SOJI API',
+    description='API documentation for SOJI Fraud Detection App',
+    version="0.1.0",
+    debug=True)
 
 @app.get("/")
 def root():
