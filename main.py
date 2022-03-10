@@ -43,20 +43,6 @@ app.add_middleware(
 # Routes
 @app.get("/")
 def root():
-    # initial = time.time()
-    # lines = ""
-    # databaseText = "http://sojiare.com/privatedocs/Email_scams.txt"
-    # f = urlopen(databaseText)
-    # for line in f:
-    #     k = line.strip()
-        # lines += " "+k.decode('utf-8')
-    # response = requests.get('http://sojiare.com/privatedocs/Email_scams.txt')
-    # response.encoding = "utf-8"
-    # data = response.text
-    # for line in data.split('\r\n'):
-    #     lines += " "+line
-    # final = time.time() - initial
-    # return lines, final
     return {"Hello": "World"}
 
 predict_examples = {
