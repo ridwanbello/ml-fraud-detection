@@ -1,7 +1,12 @@
-from pydantic import BaseModel, Field
+from sqlalchemy import Boolean, Column, ForeignKey, Integer, String
+
+from .database import Base
 
 
-class Item(BaseModel):
-    userText: str = Field(description="The text entered by the user")
-    databaseText: str = Field(description="The text from the database of lists of fraudulent texts")
-    
+class User(Base):
+    __tablename__ = "items"
+
+    id = Column(Integer, primary_key=True, index=True)
+    email = Column(String, unique=True, index=True)
+    hashed_password = Column(String)
+    is_active = Column(Boolean, default=True)

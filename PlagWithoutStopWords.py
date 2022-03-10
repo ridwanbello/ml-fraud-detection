@@ -12,29 +12,26 @@ import requests, time
 import numpy as np
 import rabin_karp
 
-class PlagiarismChecker:
+class PlagiarismWithoutStopWords:
     def __init__(self, file_a, file_b):
         self.file_a = file_a
         self.file_b = file_b
         self.hash_table = {"a": [], "b": []}
         self.k_gram = 4
-        #content_a =self.file_a
-        #content_b = self.file_b
         try:
             content_a = self.clean_content(self.file_a)
-            #content_b = self.get_url_content(self.file_b)
-            content_b = self.clean_content(self.file_b)
+            content_b = self.get_url_content(self.file_b)
             self.calculate_hash(content_a, "a")
             self.calculate_hash(content_b, "b")
         except:
-            print("Exception")  
+            print("Exception") 
 
-    # calaculate hash value of the file content
+    # Calculate hash value of the file content
     # and add it to the document type hash table
     def calculate_hash(self, content, doc_type):
         text = self.prepare_content(content)
         text = "".join(text)
-        print(text)
+        
 
         text = rabin_karp.rolling_hash(text, self.k_gram)
         for _ in range(len(content) - self.k_gram + 1):
@@ -53,7 +50,6 @@ class PlagiarismChecker:
         b = hash_table["b"]
         sh = len(np.intersect1d(a, b))
         # print(sh, a, b)
-        # print(sh, th_a, th_b)
 
         # Formular for plagiarism rate
         # P = (2 * SH / THA * THB ) 100%
@@ -63,8 +59,7 @@ class PlagiarismChecker:
     # get content from file
     def get_file_content(self, filename):
         file = open(filename, 'r+', encoding="utf-8")
-        data = file.read()
-        return data
+        return file.read()
 
     # Get content from url
     def get_url_content(self, filename):
@@ -76,13 +71,6 @@ class PlagiarismChecker:
             lines += " "+line
         return lines
 
-    # Get content from url
-    def get_url_content_only(self, filename):
-        response = requests.get(filename)
-        response.encoding = "utf-8"
-        data = response.text
-        return data
-
     # Clean content
     def clean_content(self, data):
         try:
@@ -91,20 +79,19 @@ class PlagiarismChecker:
         except:
             print("Error cleaning content there")
 
-
     # Prepare content by removing stopwords, steemming and tokenizing
     def prepare_content(self, content):
         # STOP WORDS
-        stop_words = set(stopwords.words('english'))
+        #stop_words = set(stopwords.words('english'))
         # TOKENIZE
         word_tokens = word_tokenize(content)
+
         filtered_content = []
         # STEMMING
         porter = PorterStemmer()
         for w in word_tokens:
-            if w not in stop_words:
-                w = w.lower()
-                word = porter.stem(w)
-                filtered_content.append(word)
+            w = w.lower()
+            word = porter.stem(w)
+            filtered_content.append(word)
 
         return filtered_content

@@ -22,12 +22,12 @@ class PlagiarismChecker:
         #content_b = self.file_b
         try:
             content_a = self.clean_content(self.file_a)
-            #content_b = self.get_url_content(self.file_b)
-            content_b = self.clean_content(self.file_b)
+            content_b = self.get_url_content(self.file_b)
             self.calculate_hash(content_a, "a")
             self.calculate_hash(content_b, "b")
         except:
             print("Exception")  
+
 
     # calaculate hash value of the file content
     # and add it to the document type hash table
@@ -75,13 +75,6 @@ class PlagiarismChecker:
         for line in data.split('\r\n'):
             lines += " "+line
         return lines
-
-    # Get content from url
-    def get_url_content_only(self, filename):
-        response = requests.get(filename)
-        response.encoding = "utf-8"
-        data = response.text
-        return data
 
     # Clean content
     def clean_content(self, data):
