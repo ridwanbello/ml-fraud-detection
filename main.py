@@ -193,7 +193,7 @@ def get_url_content_only(filename):
 @app.post("/api/v1/predict1", responses=predict_responses1)
 def predict_with_stopwords(item: Item = Body(..., examples=predict_examples)):
     if len(item.userText.split()) < 4 :
-        raise HTTPException(status_code=404, detail="Text should not be less than 4 words")
+        raise HTTPException(status_code=400, detail="Text should not be less than 4 words")
     databaseText = "http://sojiare.com/privatedocs/Email_scams.txt"
     data = get_url_content_only(databaseText)
     data = data.split('\r\n')
@@ -209,7 +209,7 @@ def predict_with_stopwords(item: Item = Body(..., examples=predict_examples)):
 @app.post("/api/v1/predict2", responses=predict_responses2)
 def predict_without_stopwords(item: Item = Body(..., examples=predict_examples)):
     if len(item.userText.split()) < 4 :
-        raise HTTPException(status_code=404, detail="Text should not be less than 4 words")
+        raise HTTPException(status_code=400, detail="Text should not be less than 4 words")
     databaseText = "http://sojiare.com/privatedocs/Email_scams.txt"
     data = get_url_content_only(databaseText)
     data = data.split('\r\n')
