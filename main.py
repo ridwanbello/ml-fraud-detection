@@ -224,13 +224,24 @@ def check_attribute(attribute: Attribute = Body(..., examples=check_examples)):
     except:
         raise HTTPException(status_code=500, detail="Server error")
     splittedData = data.split(',')
+    cleanedData=""
     if len(splittedData) > 1 :
         for i, e in enumerate(splittedData):
-            cleanedData = clean_data(e)
+            conversion = convert_to_international(e)
+            if(conversion[0]=="+"):
+                validation = check_valid_number(conversion)
+                if(len(validation) > 1):
+                    raise HTTPException(status_code=400, detail=validation)
+            cleanedData = conversion
             if cleanedData in attributeSet:
                 results.append(cleanedData)
     else :
-        cleanedData = clean_data(data)
+        conversion = convert_to_international(data)
+        if(conversion[0]=="+"):
+            validation = check_valid_number(conversion)
+            if(len(validation) > 1):
+                raise HTTPException(status_code=400, detail=validation)
+        cleanedData = conversion
         if cleanedData in attributeSet:
             results.append(cleanedData)
     return {"matched": results}
@@ -248,9 +259,15 @@ def check_attribute_with_text(attribute: Attribute = Body(..., examples=check_ex
     except:
         raise HTTPException(status_code=500, detail="Server error")
     splittedData = data.split(',')
+    cleanedData=""
     if len(splittedData) > 1 :
         for i, e in enumerate(splittedData):
-            cleanedData = clean_data(e)
+            conversion = convert_to_international(e)
+            if(conversion[0]=="+"):
+                validation = check_valid_number(conversion)
+                if(len(validation) > 1):
+                    raise HTTPException(status_code=400, detail=validation)
+            cleanedData = conversion
             if cleanedData in attributeSet:
                 results.append(cleanedData)
             for i, e in enumerate(wordList):
@@ -258,7 +275,12 @@ def check_attribute_with_text(attribute: Attribute = Body(..., examples=check_ex
                     if cleanedData in k:
                         results.append(cleanedData)    
     else :
-        cleanedData = clean_data(data)
+        conversion = convert_to_international(data)
+        if(conversion[0]=="+"):
+            validation = check_valid_number(conversion)
+            if(len(validation) > 1):
+                raise HTTPException(status_code=400, detail=validation)
+        cleanedData = conversion
         if cleanedData in attributeSet:
             results.append(cleanedData)
         for i, e in enumerate(wordList):
