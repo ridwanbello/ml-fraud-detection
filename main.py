@@ -213,8 +213,8 @@ def predict_without_stopwords(item: Item = Body(..., examples=text_examples)):
     frequency = sum(i > 0 for i in results)
     return {"percentage": max_value, "text": data[max_index], "frequency": frequency}
 
-@app.post("/api/v1/check", responses=check_responses)
-def check(attribute: Attribute = Body(..., examples=check_examples)):
+@app.post("/api/v1/check_attribute", responses=check_responses)
+def check_attribute(attribute: Attribute = Body(..., examples=check_examples)):
     try:
         attributeTxt = get_url_content_only("http://sojiare.com/privatedocs/scamPhones.txt")
         attributeList = attributeTxt.split('\r\n')
@@ -235,8 +235,8 @@ def check(attribute: Attribute = Body(..., examples=check_examples)):
             results.append(cleanedData)
     return {"matched": results}
 
-@app.post("/api/v1/check_with_text", responses=check_responses)
-def check(attribute: Attribute = Body(..., examples=check_examples)):
+@app.post("/api/v1/check_attribute_with_text", responses=check_responses)
+def check_attribute_with_text(attribute: Attribute = Body(..., examples=check_examples)):
     try:
         attributeTxt = get_url_content_only("http://sojiare.com/privatedocs/scamPhones.txt")
         wordTxt = get_url_content_only("http://sojiare.com/privatedocs/Email_scams.txt")
