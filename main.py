@@ -230,7 +230,7 @@ def check_attribute(attribute: Attribute = Body(..., examples=check_examples)):
             if cleanedData in attributeSet:
                 results.append(cleanedData)
     else :
-        cleanedData = clean_data(e)
+        cleanedData = clean_data(data)
         if cleanedData in attributeSet:
             results.append(cleanedData)
     return {"matched": results}
@@ -258,7 +258,7 @@ def check_attribute_with_text(attribute: Attribute = Body(..., examples=check_ex
                     if cleanedData in k:
                         results.append(cleanedData)    
     else :
-        cleanedData = clean_data(e)
+        cleanedData = clean_data(data)
         if cleanedData in attributeSet:
             results.append(cleanedData)
         for i, e in enumerate(wordList):
