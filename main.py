@@ -1,4 +1,6 @@
 # Import fastapi library
+from dataclasses import replace
+from unittest import result
 from fastapi import Body, FastAPI, HTTPException, Depends
 from fastapi.middleware.cors import CORSMiddleware
 #from sqlalchemy.orm import Session
@@ -46,13 +48,49 @@ app.add_middleware(
 def root():
     return {"Hello": "World"}
 
-predict_examples = {
+text_examples = {
     "body":{
         "value": {
             "userText": "Johnson Paul WESTERN UNION DIRECTOR Miami Florida",
         } 
     }
 }
+
+text_responses = {
+    200: {
+        "description": "Success",
+        "content": {
+            "application/json": {
+                "example": {
+                    "percentage": 58.620689655172406,
+                    "text": "WESTERN UNION DIRECTOR",
+                    "frequency": 23
+                }
+            }
+        }
+    },
+    400:{
+        "description": "Validation Error",
+        "content": {
+            "application/json": {
+                "example": {
+                    "detail": "Text should not be less than 4 words"
+                }
+            }
+        }
+    },
+    500:{
+        "description": "Server Error",
+        "content": {
+            "application/json": {
+                "example": {
+                    "detail": "Server Error"
+                }
+            }
+        }
+    }
+}
+
 
 check_examples = {
     "body":{
@@ -62,135 +100,40 @@ check_examples = {
     }
 }
 
-predict_responses1 = {
+check_responses = {
     200: {
         "description": "Success",
         "content": {
             "application/json": {
                 "example": {
-                    "percentage": 58.620689655172406,
-                    "text": "WESTERN UNION DIRECTOR",
-                    "list": [
-                        11.428571428571429,
-                        0.0,
-                        0.0,
-                        5.830903790087463,
-                        0.0,
-                        0.0,
-                        0.0,
-                        0.0,
-                        1.2658227848101267,
-                        7.758620689655173,
-                        0.0,
-                        2.941176470588235,
-                        0.0,
-                        0.0,
-                        0.0,
-                        8.333333333333332,
-                        3.278688524590164,
-                        0.0,
-                        0.0,
-                        0.0,
-                        0.0,
-                        0.0,
-                        32.6530612244898,
-                        36.0,
-                        21.73913043478261,
-                        36.0,
-                        0.0,
-                        0.0,
-                        27.397260273972602,
-                        0.0,
-                        14.084507042253522,
-                        0.0,
-                        0.0,
-                        6.993006993006993,
-                        0.0,
-                        2.5316455696202533,
-                        0.0,
-                        7.518796992481203,
-                        0.0,
-                        7.5,
-                        7.547169811320755,
-                        0.0,
-                        0.0,
-                        0.0,
-                        0.0,
-                        0.0,
-                        1.1560693641618496,
-                        0.0,
-                        3.3333333333333335,
-                    ]
+                    "matched": ["+2347014392964"]
+                }
+            }
+        }
+    },
+    400:{
+        "description": "Validation Error",
+        "content": {
+            "application/json": {
+                "example": {
+                    "detail": "Phone Number not valid. Please check and try again"
+                }
+            }
+        }
+    },
+    500:{
+        "description": "Server Error",
+        "content": {
+            "application/json": {
+                "example": {
+                    "detail": "Server Error"
                 }
             }
         }
     }
 }
 
-predict_responses2 = {
-    200: {
-        "description": "Success",
-        "content": {
-            "application/json": {
-                "example": {
-                    "percentage": 58.620689655172406,
-                    "text": "WESTERN UNION DIRECTOR",
-                    "list": [
-                        11.428571428571429,
-                        0.0,
-                        0.0,
-                        5.830903790087463,
-                        0.0,
-                        0.0,
-                        0.0,
-                        0.0,
-                        1.2658227848101267,
-                        7.758620689655173,
-                        0.0,
-                        2.941176470588235,
-                        0.0,
-                        0.0,
-                        0.0,
-                        8.333333333333332,
-                        3.278688524590164,
-                        0.0,
-                        0.0,
-                        0.0,
-                        0.0,
-                        0.0,
-                        32.6530612244898,
-                        36.0,
-                        21.73913043478261,
-                        36.0,
-                        0.0,
-                        0.0,
-                        27.397260273972602,
-                        0.0,
-                        14.084507042253522,
-                        0.0,
-                        0.0,
-                        6.993006993006993,
-                        0.0,
-                        2.5316455696202533,
-                        0.0,
-                        7.518796992481203,
-                        0.0,
-                        7.5,
-                        7.547169811320755,
-                        0.0,
-                        0.0,
-                        0.0,
-                        0.0,
-                        0.0,
-                        1.1560693641618496,
-                        0.0,
-                        3.3333333333333335,
-                    ]
-                }
-            }
-        }
-    }
-}
+
 
 def get_url_content_only(filename):
         response = requests.get(filename)
@@ -198,13 +141,47 @@ def get_url_content_only(filename):
         data = response.text
         return data
 
-@app.post("/api/v1/predict1", responses=predict_responses1)
-def predict_with_stopwords(item: Item = Body(..., examples=predict_examples)):
+def convert_to_international(str):
+    convertedStr = ""
+    if(str[0] == "0"):
+        convertedStr = str.replace(str[0], "+234", 1)
+    elif(str[0:3] == "234"):
+        convertedStr = str.replace(str[0:3], "+234", 1)
+    else:
+        convertedStr = str
+    return convertedStr
+
+def check_valid_number(phone):
+    phoneLength = len(phone)
+    if(phoneLength < 12 or phoneLength > 14):
+        return "Phone Number not valid. Please check and try again"
+    else:
+        return ""
+
+def find_occurences(data, phoneText):
+    setPhoneText = set(phoneText)
+    if(data in setPhoneText):
+        return data
+
+def clean_data(e):
+    convertedData = convert_to_international(e)
+    validation = check_valid_number(convertedData)
+    if(len(validation) > 1):
+        raise HTTPException(status_code=400, detail=validation)
+    return convertedData
+
+
+
+@app.post("/api/v1/predict1", responses=text_responses)
+def predict_with_stopwords(item: Item = Body(..., examples=text_examples)):
     if len(item.userText.split()) < 4 :
         raise HTTPException(status_code=400, detail="Text should not be less than 4 words")
-    databaseText = "http://sojiare.com/privatedocs/Email_scams.txt"
-    data = get_url_content_only(databaseText)
-    data = data.split('\r\n')
+    try:    
+        databaseText = "http://sojiare.com/privatedocs/Email_scams.txt"
+        data = get_url_content_only(databaseText)
+        data = data.split('\r\n')
+    except:
+        raise HTTPException(status_code=500, detail="Server error")
     results=[]
     for i, line in enumerate(data):
         result = PlagiarismChecker(item.userText,line)
@@ -216,13 +193,16 @@ def predict_with_stopwords(item: Item = Body(..., examples=predict_examples)):
 
     return {"percentage": max_value, "text": data[max_index], "frequency": frequency}
 
-@app.post("/api/v1/predict2", responses=predict_responses2)
-def predict_without_stopwords(item: Item = Body(..., examples=predict_examples)):
+@app.post("/api/v1/predict2", responses=text_responses)
+def predict_without_stopwords(item: Item = Body(..., examples=text_examples)):
     if len(item.userText.split()) < 4 :
         raise HTTPException(status_code=400, detail="Text should not be less than 4 words")
-    databaseText = "http://sojiare.com/privatedocs/Email_scams.txt"
-    data = get_url_content_only(databaseText)
-    data = data.split('\r\n')
+    try:
+        databaseText = "http://sojiare.com/privatedocs/Email_scams.txt"
+        data = get_url_content_only(databaseText)
+        data = data.split('\r\n')
+    except:
+        raise HTTPException(status_code=500, detail="Server error")
     results=[]
     for i, line in enumerate(data):
         result = PlagiarismWithoutStopWords(item.userText,line)
@@ -233,35 +213,57 @@ def predict_without_stopwords(item: Item = Body(..., examples=predict_examples))
     frequency = sum(i > 0 for i in results)
     return {"percentage": max_value, "text": data[max_index], "frequency": frequency}
 
-@app.post("/api/v1/check")
+@app.post("/api/v1/check", responses=check_responses)
 def check(attribute: Attribute = Body(..., examples=check_examples)):
-    attributeText = "http://sojiare.com/privatedocs/scamPhones.txt"
-    data = get_url_content_only(attributeText)
-    data = data.split('\r\n')
-    return data
-    
-    if len(attribute.features.split(',')) > 1 :
+    try:
+        attributeTxt = get_url_content_only("http://sojiare.com/privatedocs/scamPhones.txt")
+        attributeList = attributeTxt.split('\r\n')
+        attributeSet = set(attributeList)
+        results = []
+        data = attribute.features
+    except:
+        raise HTTPException(status_code=500, detail="Server error")
+    splittedData = data.split(',')
+    if len(splittedData) > 1 :
+        for i, e in enumerate(splittedData):
+            cleanedData = clean_data(e)
+            if cleanedData in attributeSet:
+                results.append(cleanedData)
+    else :
+        cleanedData = clean_data(e)
+        if cleanedData in attributeSet:
+            results.append(cleanedData)
+    return {"matched": results}
 
-        raise HTTPException(status_code=400, detail="Text should not be less than 4 words")
+@app.post("/api/v1/check_with_text", responses=check_responses)
+def check(attribute: Attribute = Body(..., examples=check_examples)):
+    try:
+        attributeTxt = get_url_content_only("http://sojiare.com/privatedocs/scamPhones.txt")
+        wordTxt = get_url_content_only("http://sojiare.com/privatedocs/Email_scams.txt")
+        attributeList = attributeTxt.split('\r\n')
+        attributeSet = set(attributeList)
+        wordList = wordTxt.split('\r\n')
+        results = []
+        data = attribute.features
+    except:
+        raise HTTPException(status_code=500, detail="Server error")
+    splittedData = data.split(',')
+    if len(splittedData) > 1 :
+        for i, e in enumerate(splittedData):
+            cleanedData = clean_data(e)
+            if cleanedData in attributeSet:
+                results.append(cleanedData)
+            for i, e in enumerate(wordList):
+                for k in e.split(" "):
+                    if cleanedData in k:
+                        results.append(cleanedData)    
+    else :
+        cleanedData = clean_data(e)
+        if cleanedData in attributeSet:
+            results.append(cleanedData)
+        for i, e in enumerate(wordList):
+            for k in e.split(" "):
+                if cleanedData in k:
+                    results.append(cleanedData)
+    return {"matched": results}
 
-
-    raise HTTPException(status_code=200, detail="Good to go")
-    databaseText = "http://sojiare.com/privatedocs/Email_scams.txt"
-    data = get_url_content_only(databaseText)
-    data = data.split('\r\n')
-    results=[]
-    for i, line in enumerate(data):
-        result = PlagiarismWithoutStopWords(item.userText,line)
-        myresult = result.get_rate()
-        results.append(myresult)
-    max_value = max(results)
-    max_index = results.index(max_value)
-    return {"percentage": max_value, "text": data[max_index], "list": results}
-
-
-
-
-# @app.post("/api/v1/prediction" )
-# def fetch_data(db: Session = Depends(get_database_session)):
-#         records = db.query(Item).all()
-#         return records
