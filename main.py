@@ -7,7 +7,7 @@ from urllib.request import urlopen
 import time, requests
 from numpy import argmax
 # Import my modules
-from schemas import Item
+from schemas import Item, Attribute
 #import models
 from PlagiarismChecker import PlagiarismChecker
 from PlagiarismWithoutStopWords import PlagiarismWithoutStopWords
@@ -50,6 +50,14 @@ predict_examples = {
     "body":{
         "value": {
             "userText": "Johnson Paul WESTERN UNION DIRECTOR Miami Florida",
+        } 
+    }
+}
+
+check_examples = {
+    "body":{
+        "value": {
+            "features": "08034343434,+120324434",
         } 
     }
 }
@@ -204,7 +212,9 @@ def predict_with_stopwords(item: Item = Body(..., examples=predict_examples)):
         results.append(myresult)
     max_value = max(results)
     max_index = results.index(max_value)
-    return {"percentage": max_value, "text": data[max_index], "list": results}
+    frequency = sum(i > 0 for i in results)
+
+    return {"percentage": max_value, "text": data[max_index], "frequency": frequency}
 
 @app.post("/api/v1/predict2", responses=predict_responses2)
 def predict_without_stopwords(item: Item = Body(..., examples=predict_examples)):
@@ -220,7 +230,36 @@ def predict_without_stopwords(item: Item = Body(..., examples=predict_examples))
         results.append(myresult)
     max_value = max(results)
     max_index = results.index(max_value)
+    frequency = sum(i > 0 for i in results)
+    return {"percentage": max_value, "text": data[max_index], "frequency": frequency}
+
+@app.post("/api/v1/check")
+def check(attribute: Attribute = Body(..., examples=check_examples)):
+    attributeText = "http://sojiare.com/privatedocs/scamPhones.txt"
+    data = get_url_content_only(attributeText)
+    data = data.split('\r\n')
+    return data
+    
+    if len(attribute.features.split(',')) > 1 :
+
+        raise HTTPException(status_code=400, detail="Text should not be less than 4 words")
+
+
+    raise HTTPException(status_code=200, detail="Good to go")
+    databaseText = "http://sojiare.com/privatedocs/Email_scams.txt"
+    data = get_url_content_only(databaseText)
+    data = data.split('\r\n')
+    results=[]
+    for i, line in enumerate(data):
+        result = PlagiarismWithoutStopWords(item.userText,line)
+        myresult = result.get_rate()
+        results.append(myresult)
+    max_value = max(results)
+    max_index = results.index(max_value)
     return {"percentage": max_value, "text": data[max_index], "list": results}
+
+
+
 
 # @app.post("/api/v1/prediction" )
 # def fetch_data(db: Session = Depends(get_database_session)):
