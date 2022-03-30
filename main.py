@@ -34,6 +34,7 @@ def get_db():
 
 # CORS Origin Middleware
 origins = [
+    "*",
     "http://localhost:5000",
     "http://localhost:3000",
     "https://sojiare.com",
