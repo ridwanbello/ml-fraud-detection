@@ -1,8 +1,8 @@
-# SOJI fraud detection with percentage API 
+# Machine Learning fraud detection with percentage API 
 
 ## Introduction
 
-SOJI is a web-based fraud detection system by comparing the words entered by the user to check if a particular sentence is fraudulent or not. This is determined by the percentage matched 
+This Machine Learning-based fraud detection system works by comparing the words entered by the user to check if a particular sentence is fraudulent or not. This is determined by the percentage matched 
 
 ## How To Use
 Using the /prediction endpoint with a POST Request
